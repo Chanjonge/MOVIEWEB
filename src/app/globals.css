@@ -1,26 +1,298 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0c0a0d;
+  --surface: #1a1215;
+  --surface-2: #241a1e;
+  --foreground: #f7f1e6;
+  --muted: #ab9c95;
+  --border: #362a2c;
+
+  --gold: #ffc94d;
+  --gold-dark: #e0a52e;
+  --marquee-red: #ff3b4e;
+  --marquee-red-dark: #b3122b;
+
+  --violet: #b48cff;
+  --pink: #ff6ec7;
+  --neon-cyan: #3fe3d8;
+
+  --paper: #f7ecd8;
+  --paper-ink: #2a1c14;
+  --paper-line: #d9c39c;
+
+  --font-sans: var(--font-noto-kr);
+  --font-display: var(--font-black-han), var(--font-noto-kr);
+  --font-marquee: var(--font-bungee);
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-muted: var(--muted);
+  --color-border: var(--border);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-gold: var(--gold);
+  --color-gold-dark: var(--gold-dark);
+  --color-marquee-red: var(--marquee-red);
+  --color-marquee-red-dark: var(--marquee-red-dark);
+  --color-violet: var(--violet);
+  --color-pink: var(--pink);
+  --color-neon-cyan: var(--neon-cyan);
+
+  --color-paper: var(--paper);
+  --color-paper-ink: var(--paper-ink);
+  --color-paper-line: var(--paper-line);
+
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+  --font-marquee: var(--font-marquee);
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(ellipse 90% 55% at 50% -8%, rgba(255, 201, 77, 0.12), transparent 60%),
+    radial-gradient(ellipse 70% 45% at 90% 105%, rgba(180, 140, 255, 0.09), transparent 60%),
+    var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ---------- film grain + vignette ---------- */
+
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.spotlight {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 60% 55% at 50% 0%, rgba(255, 201, 77, 0.16), transparent 70%);
+}
+
+.spotlight.is-violet {
+  background: radial-gradient(ellipse 60% 55% at 50% 0%, rgba(180, 140, 255, 0.16), transparent 70%);
+}
+
+/* ---------- marquee bulb-light strip ---------- */
+
+.marquee-lights {
+  --bulb: var(--gold);
+  --bulb-size: 3px;
+  --bulb-gap: 22px;
+  height: 14px;
+  background-image: radial-gradient(
+    circle,
+    var(--bulb) 0 var(--bulb-size),
+    transparent calc(var(--bulb-size) + 1px)
+  );
+  background-size: var(--bulb-gap) 14px;
+  background-repeat: repeat-x;
+  background-position: 0 center;
+  filter: drop-shadow(0 0 5px var(--bulb));
+}
+
+.marquee-lights.is-violet {
+  --bulb: var(--violet);
+}
+
+.marquee-lights.is-animated {
+  animation: marquee-chase 1.1s linear infinite;
+}
+
+@keyframes marquee-chase {
+  to {
+    background-position: var(--bulb-gap) center;
+  }
+}
+
+/* ---------- neon glow text ---------- */
+
+.neon-text {
+  text-shadow:
+    0 0 4px currentColor,
+    0 0 12px currentColor,
+    0 0 28px var(--glow-color, currentColor);
+}
+
+/* ---------- gradient foil border ---------- */
+
+.foil-border {
+  --foil: var(--gold);
+  --foil-mid: rgba(255, 201, 77, 0.18);
+  border: 1px solid transparent;
+  background-image:
+    linear-gradient(var(--surface), var(--surface)),
+    linear-gradient(135deg, var(--foil) 0%, var(--foil-mid) 35%, var(--foil-mid) 65%, var(--foil) 100%);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+.foil-border.is-violet {
+  --foil: var(--violet);
+  --foil-mid: rgba(180, 140, 255, 0.18);
+}
+
+/* ---------- Movie ticket shape ---------- */
+
+.ticket-row {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  isolation: isolate;
+}
+
+.ticket-seam {
+  position: relative;
+  width: 0;
+  border-left: 2px dashed rgba(0, 0, 0, 0.45);
+  flex-shrink: 0;
+}
+
+.ticket-seam::before,
+.ticket-seam::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background: var(--background);
+  transform: translate(-50%, -50%);
+  z-index: 5;
+}
+
+.ticket-seam::before {
+  top: 0;
+}
+
+.ticket-seam::after {
+  top: 100%;
+}
+
+.ticket-barcode {
+  background-image: repeating-linear-gradient(
+    90deg,
+    currentColor 0 2px,
+    transparent 2px 3px,
+    currentColor 3px 4px,
+    transparent 4px 6px,
+    currentColor 6px 9px,
+    transparent 9px 12px,
+    currentColor 12px 13px,
+    transparent 13px 16px
+  );
+}
+
+/* ---------- CD / disc ---------- */
+
+.cd-disc {
+  position: relative;
+  border-radius: 9999px;
+  background-color: var(--surface-2);
+  background-size: cover;
+  background-position: center;
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
+  transition: box-shadow 400ms ease;
+}
+
+.cd-disc::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background:
+    repeating-radial-gradient(
+      circle at center,
+      rgba(255, 255, 255, 0.05) 0 1px,
+      transparent 1px 4px
+    ),
+    conic-gradient(
+      from 200deg,
+      rgba(255, 255, 255, 0.22),
+      rgba(255, 255, 255, 0) 20%,
+      rgba(255, 255, 255, 0) 55%,
+      rgba(255, 255, 255, 0.15) 70%,
+      rgba(255, 255, 255, 0) 85%
+    );
+  pointer-events: none;
+}
+
+.cd-disc::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 22%;
+  height: 22%;
+  border-radius: 9999px;
+  background: var(--background);
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  transform: translate(-50%, -50%);
+  box-shadow: inset 0 0 0 5px var(--surface-2);
+}
+
+.cd-disc.is-active {
+  box-shadow:
+    0 0 0 3px rgba(180, 140, 255, 0.85),
+    0 0 32px 6px rgba(180, 140, 255, 0.45),
+    0 14px 40px rgba(0, 0, 0, 0.6);
+}
+
+.cd-spin {
+  animation: cd-spin 3.2s linear infinite;
+}
+
+@keyframes cd-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- Memo paper ---------- */
+
+.paper-lines {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent,
+    transparent 1.85rem,
+    var(--paper-line) 1.85rem,
+    var(--paper-line) calc(1.85rem + 1px)
+  );
+  background-attachment: local;
+}
+
+.paper-pin::before {
+  content: "";
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 35% 30%, #ff8b8b, var(--marquee-red-dark) 75%);
+  box-shadow:
+    0 3px 6px rgba(0, 0, 0, 0.45),
+    0 0 12px rgba(255, 59, 78, 0.5);
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+/* ---------- utility ---------- */
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
 }
